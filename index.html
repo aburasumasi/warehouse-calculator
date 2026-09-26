@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#ff3ea5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="倉庫採算">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon-192.png">
+<title>倉庫採算 SUPER QUICK CALCULATOR</title>
+<style>
+  :root{--bg:#fff7fb;--ink:#23121e;--card:#ffffffee;--line:#2b1830}
+  *{box-sizing:border-box}
+  body{
+    margin:0;font-family:system-ui,-apple-system,"Noto Sans JP","Yu Gothic",sans-serif;color:var(--ink);
+    background:
+      radial-gradient(circle at 12% 10%,#fff59d 0 10%,transparent 11%),
+      radial-gradient(circle at 90% 15%,#b9f6ca 0 9%,transparent 10%),
+      linear-gradient(135deg,#ffe0f2,#e4f7ff 52%,#fff6c9);
+    min-height:100vh
+  }
+  .wrap{max-width:680px;margin:auto;padding:16px 14px 110px}
+  .hero{
+    border:4px solid #241323;border-radius:24px;padding:18px 12px 14px;text-align:center;
+    background:linear-gradient(90deg,#ff4f81,#ffad3b,#fff04d,#58e06f,#4fc3ff,#7867ff,#e85cff,#ff4f81);
+    background-size:300% 100%;animation:rainbow 7s linear infinite;box-shadow:7px 7px 0 #241323
+  }
+  @keyframes rainbow{to{background-position:300% 0}}
+  .hero h1{margin:0;font-size:clamp(25px,7vw,42px);line-height:1.05;text-shadow:2px 2px #fff}
+  .hero p{margin:9px 0 0;font-weight:900;background:#fff9;display:inline-block;padding:4px 10px;border-radius:999px;border:2px solid #241323}
+  .section{margin-top:18px;background:var(--card);border:3px solid var(--line);border-radius:20px;padding:14px;box-shadow:5px 5px 0 #241323}
+  .section h2{margin:0 0 10px;font-size:20px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:520px){.grid{grid-template-columns:1fr}}
+  label{display:block;font-weight:900;background:#fff1a8;border:2px solid var(--line);border-radius:14px;padding:10px}
+  label:nth-child(3n+2){background:#ffd8ee} label:nth-child(3n){background:#d8f5ff}
+  .unit{font-size:12px;opacity:.72}
+  input{width:100%;margin-top:5px;border:3px solid #251529;border-radius:12px;padding:11px 12px;font-size:21px;font-weight:900;background:#fff;outline:none}
+  input:focus{box-shadow:0 0 0 5px #ffef6a}
+  .calc{position:sticky;bottom:12px;z-index:5;width:100%;margin-top:16px;padding:16px 12px;font-size:24px;font-weight:1000;border:4px solid #241323;border-radius:18px;background:linear-gradient(#ffec41,#ff8a2c);box-shadow:6px 7px 0 #241323;cursor:pointer}
+  .calc:active{transform:translate(4px,5px);box-shadow:2px 2px 0 #241323}
+  .results{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .result{border:2px solid #241323;border-radius:15px;padding:11px;background:#e9ffe8}
+  .result:nth-child(even){background:#e8f1ff}
+  .result .k{font-size:13px;font-weight:900}.result .v{font-size:23px;font-weight:1000;margin-top:3px;word-break:break-all}
+  .money{grid-column:1/-1;background:#ffe1f3 !important}.money .v{font-size:clamp(30px,9vw,48px)}
+  #message{display:none;margin-top:14px;text-align:center;padding:16px 10px;border:4px solid #241323;border-radius:18px;background:#ffef56;font-size:clamp(25px,8vw,42px);font-weight:1000;box-shadow:5px 5px 0 #241323;transform:rotate(-1deg)}
+  .mini{font-size:12px;opacity:.72;margin-top:10px;line-height:1.5}
+  .rowBtns{display:flex;gap:8px;margin-top:10px}.subbtn{flex:1;border:2px solid #241323;border-radius:12px;background:#fff;padding:10px;font-weight:900}
+  #install{display:none;width:100%;margin-top:12px;padding:12px;border:3px solid #241323;border-radius:14px;background:#a7ffeb;font-size:18px;font-weight:1000}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <h1>❤🌈 倉庫採算<br>SUPER QUICK CALCULATOR 🌈❤</h1>
+    <p>～儲かるん？～ 💸</p>
+  </header>
+
+  <button id="install">📲 ホーム画面にぶち込む</button>
+
+  <section class="section">
+    <h2>📦 入力するで</h2>
+    <div class="grid">
+      <label>パレット縦 <span class="unit">(m)</span><input id="palletH" type="number" inputmode="decimal" step="0.01" value="1.1"></label>
+      <label>パレット横 <span class="unit">(m)</span><input id="palletW" type="number" inputmode="decimal" step="0.01" value="1.1"></label>
+      <label>保管料 <span class="unit">(円/パレット)</span><input id="price" type="number" inputmode="decimal" step="1" value="330"></label>
+      <label>期間 <span class="unit">(期)</span><input id="period" type="number" inputmode="decimal" step="1" value="3"></label>
+      <label>1パレット重量 <span class="unit">(t)</span><input id="weight" type="number" inputmode="decimal" step="0.01" value="1"></label>
+      <label>保管坪数 <span class="unit">(坪)</span><input id="tsubo" type="number" inputmode="decimal" step="0.1" value="66"></label>
+      <label>稼働率 <span class="unit">(%)</span><input id="util" type="number" inputmode="decimal" step="1" value="100"></label>
+      <label>段積み補正 <span class="unit">(段)</span><input id="stack" type="number" inputmode="decimal" step="1" value="3"></label>
+      <label>通路ロス率 <span class="unit">(%)</span><input id="loss" type="number" inputmode="decimal" step="1" value="15"></label>
+    </div>
+    <div class="rowBtns">
+      <button class="subbtn" id="defaults">初期値に戻す</button>
+      <button class="subbtn" id="clearSaved">保存値を消す</button>
+    </div>
+    <div class="mini">入力値はこの端末内に自動保存。インストール後はオフラインでも動作します。</div>
+  </section>
+
+
+  <section class="section">
+    <h2>🚚 ○○パレット入れたらナンボ？</h2>
+    <div class="grid">
+      <label>仮に保管するパレット数 <span class="unit">(PL)</span>
+        <input id="directPallets" type="number" inputmode="decimal" step="1" value="100">
+      </label>
+      <div class="result" style="background:#fff4b8">
+        <div class="k">この欄では無視するもの</div>
+        <div class="v" style="font-size:18px">坪数・通路ロス・段積み</div>
+      </div>
+    </div>
+    <div class="mini">※保管料・期間・稼働率だけ使用。坪数・通路ロス・段積み補正は無視します。</div>
+
+    <div class="results" style="margin-top:12px">
+      <div class="result money"><div class="k">💴 仮PL数での月売上</div><div class="v" id="directMonthly">-</div></div>
+      <div class="result money"><div class="k">👑 仮PL数での年売上</div><div class="v" id="directAnnual">-</div></div>
+    </div>
+    <div id="directMessage" style="display:none;margin-top:14px;text-align:center;padding:16px 10px;border:4px solid #241323;border-radius:18px;background:#ffef56;font-size:clamp(25px,8vw,42px);font-weight:1000;box-shadow:5px 5px 0 #241323;transform:rotate(1deg)">やったぜ！ボロ儲け❤</div>
+  </section>
+
+  <button class="calc" id="calc">💥 採 算 計 算 す る 💥</button>
+
+  <section class="section">
+    <h2>🌈 結果発表 🌈</h2>
+    <div class="results">
+      <div class="result"><div class="k">パレット面積</div><div class="v" id="area">-</div></div>
+      <div class="result"><div class="k">坪換算</div><div class="v" id="palletTsubo">-</div></div>
+      <div class="result"><div class="k">1坪あたりパレット</div><div class="v" id="perTsubo">-</div></div>
+      <div class="result"><div class="k">坪単価</div><div class="v" id="unitTsubo">-</div></div>
+      <div class="result"><div class="k">段積み補正 坪単価</div><div class="v" id="stackedUnit">-</div></div>
+      <div class="result"><div class="k">トン単価</div><div class="v" id="tonUnit">-</div></div>
+      <div class="result"><div class="k">実効坪数</div><div class="v" id="effectiveTsubo">-</div></div>
+      <div class="result"><div class="k">実効パレット</div><div class="v" id="effectivePallet">-</div></div>
+      <div class="result money"><div class="k">💴 月売上</div><div class="v" id="monthly">-</div></div>
+      <div class="result money"><div class="k">👑 年売上</div><div class="v" id="annual">-</div></div>
+    </div>
+    <div id="message">やったぜ！ボロ儲け❤</div>
+  </section>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const ids=["palletH","palletW","price","period","weight","tsubo","util","stack","loss","directPallets"];
+const defaults={palletH:1.1,palletW:1.1,price:330,period:3,weight:1,tsubo:66,util:100,stack:3,loss:15,directPallets:100};
+const n=id=>Number($(id).value||0);
+const fmt=(x,d=2)=>Number.isFinite(x)?x.toLocaleString("ja-JP",{maximumFractionDigits:d}):"—";
+const yen=x=>Number.isFinite(x)?"￥"+Math.round(x).toLocaleString("ja-JP"):"—";
+function save(){const o={};ids.forEach(id=>o[id]=$(id).value);localStorage.setItem("warehouse-super-quick",JSON.stringify(o))}
+function load(){try{const o=JSON.parse(localStorage.getItem("warehouse-super-quick")||"null");if(o)ids.forEach(id=>{if(o[id]!==undefined)$(id).value=o[id]})}catch(e){}}
+function calculate(){
+  save();
+  const H=n("palletH"),W=n("palletW"),price=n("price"),period=n("period"),weight=n("weight"),
+        tsubo=n("tsubo"),util=n("util")/100,stack=n("stack"),loss=n("loss")/100;
+  const area=H*W;
+  const palletTsubo=area/3.305785;
+  const perTsubo=palletTsubo?1/palletTsubo:NaN;
+  const unitTsubo=price*perTsubo*period;
+  const stackedUnit=unitTsubo*stack;
+  const tonUnit=weight?price/weight:NaN;
+  const effectiveTsubo=tsubo*(1-loss);
+  const effectivePallet=effectiveTsubo*perTsubo*stack;
+  const monthly=effectivePallet*price*stack*util;
+  const annual=monthly*12;
+  const directPallets=n("directPallets");
+  const directMonthly=directPallets*price*period*util;
+  const directAnnual=directMonthly*12;
+  $("area").textContent=fmt(area,4)+" ㎡";
+  $("palletTsubo").textContent=fmt(palletTsubo,4)+" 坪";
+  $("perTsubo").textContent=fmt(perTsubo,2)+" PL/坪";
+  $("unitTsubo").textContent=yen(unitTsubo);
+  $("stackedUnit").textContent=yen(stackedUnit);
+  $("tonUnit").textContent=yen(tonUnit)+"/t";
+  $("effectiveTsubo").textContent=fmt(effectiveTsubo,2)+" 坪";
+  $("effectivePallet").textContent=fmt(effectivePallet,1)+" PL";
+  $("monthly").textContent=yen(monthly);
+  $("annual").textContent=yen(annual);
+  if(monthly>1500000){
+    $("message").textContent="事業部長もニッコリ😀";
+    $("message").style.display="block";
+  }else if(annual>1000000){
+    $("message").textContent="やったぜ！ボロ儲け❤";
+    $("message").style.display="block";
+  }else{
+    $("message").style.display="none";
+  }
+  $("directMonthly").textContent=yen(directMonthly);
+  $("directAnnual").textContent=yen(directAnnual);
+  if(directMonthly>1500000){
+    $("directMessage").textContent="事業部長もニッコリ😀";
+    $("directMessage").style.display="block";
+  }else if(directAnnual>1000000){
+    $("directMessage").textContent="やったぜ！ボロ儲け❤";
+    $("directMessage").style.display="block";
+  }else{
+    $("directMessage").style.display="none";
+  }
+}
+$("calc").addEventListener("click",calculate);
+ids.forEach(id=>$(id).addEventListener("change",calculate));
+$("defaults").addEventListener("click",()=>{ids.forEach(id=>$(id).value=defaults[id]);calculate()});
+$("clearSaved").addEventListener("click",()=>{localStorage.removeItem("warehouse-super-quick");ids.forEach(id=>$(id).value=defaults[id]);calculate()});
+load();calculate();
+
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"));
+}
+let deferredPrompt=null;
+window.addEventListener("beforeinstallprompt",e=>{
+  e.preventDefault();deferredPrompt=e;$("install").style.display="block";
+});
+$("install").addEventListener("click",async()=>{
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt=null;$("install").style.display="none";
+});
+window.addEventListener("appinstalled",()=>{$("install").style.display="none"});
+</script>
+</body>
+</html>
