@@ -111,6 +111,7 @@
       <div class="result"><div class="k">坪換算</div><div class="v" id="palletTsubo">-</div></div>
       <div class="result"><div class="k">1坪あたりパレット</div><div class="v" id="perTsubo">-</div></div>
       <div class="result"><div class="k">坪単価</div><div class="v" id="unitTsubo">-</div></div>
+      <div class="result"><div class="k">🚧 通路込み 坪単価</div><div class="v" id="aisleUnitTsubo">-</div></div>
       <div class="result"><div class="k">段積み補正 坪単価</div><div class="v" id="stackedUnit">-</div></div>
       <div class="result"><div class="k">トン単価</div><div class="v" id="tonUnit">-</div></div>
       <div class="result"><div class="k">実効坪数</div><div class="v" id="effectiveTsubo">-</div></div>
@@ -139,6 +140,7 @@ function calculate(){
   const perTsubo=palletTsubo?1/palletTsubo:NaN;
   const unitTsubo=price*perTsubo*period;
   const stackedUnit=unitTsubo*stack;
+  const aisleUnitTsubo=unitTsubo*(1-loss);
   const tonUnit=weight?price/weight:NaN;
   const effectiveTsubo=tsubo*(1-loss);
   const effectivePallet=effectiveTsubo*perTsubo*stack;
@@ -151,13 +153,17 @@ function calculate(){
   $("palletTsubo").textContent=fmt(palletTsubo,4)+" 坪";
   $("perTsubo").textContent=fmt(perTsubo,2)+" PL/坪";
   $("unitTsubo").textContent=yen(unitTsubo);
+  $("aisleUnitTsubo").textContent=yen(aisleUnitTsubo);
   $("stackedUnit").textContent=yen(stackedUnit);
   $("tonUnit").textContent=yen(tonUnit)+"/t";
   $("effectiveTsubo").textContent=fmt(effectiveTsubo,2)+" 坪";
   $("effectivePallet").textContent=fmt(effectivePallet,1)+" PL";
   $("monthly").textContent=yen(monthly);
   $("annual").textContent=yen(annual);
-  if(monthly>1500000){
+  if(monthly<=500000){
+    $("message").textContent="支店長アリナミンがぶ飲み！🥺";
+    $("message").style.display="block";
+  }else if(monthly>1500000){
     $("message").textContent="事業部長もニッコリ😀";
     $("message").style.display="block";
   }else if(annual>1000000){
@@ -168,7 +174,10 @@ function calculate(){
   }
   $("directMonthly").textContent=yen(directMonthly);
   $("directAnnual").textContent=yen(directAnnual);
-  if(directMonthly>1500000){
+  if(directMonthly<=500000){
+    $("directMessage").textContent="支店長アリナミンがぶ飲み！🥺";
+    $("directMessage").style.display="block";
+  }else if(directMonthly>1500000){
     $("directMessage").textContent="事業部長もニッコリ😀";
     $("directMessage").style.display="block";
   }else if(directAnnual>1000000){
